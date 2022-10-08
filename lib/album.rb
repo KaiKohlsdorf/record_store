@@ -2,12 +2,11 @@ class Album
   attr_reader :id, :name
   
   @@albums = {}
-
   @@total_rows = 0
 
-  def initialize(name, id)
-    @name = name
-    @id = id || @@total_rows += 1
+  def initialize(attributes)
+    @name = attributes.fetch(:name)
+    @id = attributes[:id] || @@total_rows += 1
   end
 
   def self.all
@@ -15,7 +14,7 @@ class Album
   end
 
   def save
-    @@albums[self.id] = Album.new(self.name, self.id)
+    @@albums[self.id] = Album.new({name: self.name, id: self.id})
   end
 
   def ==(album_to_compare)
@@ -39,7 +38,13 @@ class Album
     @@albums.delete(self.id)
   end
 
-  def songs
-    Song.find_by_album(self.id)
+  def self.sort
+    record_list = self.all
+    sorted_records = record_list.sort_by{ |record| record.name }
+    sorted_records
   end
+
+  # def songs
+  #   Song.find_by_album(self.id)
+  # end
 end

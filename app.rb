@@ -6,12 +6,11 @@ require('./lib/song')
 also_reload('lib/**/*.rb')
 
 get('/') do
-  @albums = Album.all
-  erb(:albums)
+  redirect to('/albums')
 end
 
 get('/albums') do
-  @albums = Album.all
+  @albums = Album.sort
   erb(:albums)
 end
 
@@ -21,14 +20,9 @@ end
 
 post('/albums') do
   name = params[:album_name]
-  album = Album.new(name, nil)
+  album = Album.new({:name => name})
   album.save()
-  @albums = Album.all() 
-  erb(:albums)
-end
-
-get('/albums') do
-  @albums = Album.all
+  redirect to('/albums')
 end
 
 get('/albums/:id') do
@@ -46,15 +40,13 @@ patch('/albums/:id') do
     @album = Album.find(params[:id].to_i())
     @album.update(params[:name])
   end
-  @albums = Album.all
-  erb(:albums)
+  redirect to('/albums')
 end
 
 delete('/albums/:id') do
   @album = Album.find(params[:id].to_i())
   @album.delete()
-  @albums = Album.all
-  erb(:albums)
+  redirect to('/albums')
 end
 
 get('/albums/:id/songs/:song_id') do
@@ -64,7 +56,7 @@ end
 
 post('/albums/:id/songs') do
   @album = Album.find(params[:id].to_i())
-  song = Song.new(params[:song_name], @album.id, nil)
+  song = Song.new({:name => params[:song_name], :album_id => @album.id})
   song.save()
   erb(:album)
 end
@@ -73,7 +65,7 @@ patch('/albums/:id/songs/:song_id') do
   @album = Album.find(params[:id].to_i())
   if params[:name] != ""
     song = Song.find(params[:song_id].to_i())
-    song.update(params[:name], @album.id)
+    song.update({:name => params[:name], :album_id => @album.id})
   end
   erb(:album)
 end
